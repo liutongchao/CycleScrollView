@@ -15,17 +15,24 @@ enum ScrollDirection{
     case center
 }
 
+protocol CycleScrollViewDelegate {
+    func cycleScrollView(view:CycleScrollView, tap index:Int)
+}
+
 class CycleScrollView: UIScrollView {
     private var _imageViewArr = [UIImageView]()
     private var _imageArr = [UIImage]()
     private var _currentIndex:Int = 0
-    
     private var _timer: Timer?
+    
+    var cycleDelegate: CycleScrollViewDelegate?
+    var cycleTapBlock: ((Int)->Void)?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
         configSelf()
         loadImageView(frame: frame)
+        addTapGestuger()
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -47,6 +54,25 @@ class CycleScrollView: UIScrollView {
         }
         self.contentSize = CGSize.init(width: 3*frame.width, height: frame.height)
         self.contentOffset = CGPoint.init(x: frame.width, y: 0)
+    }
+    
+    fileprivate func addTapGestuger(){
+        guard _imageViewArr.count == 3 else {
+            return
+        }
+        let tap = UITapGestureRecognizer.init(target: self, action: #selector(tapTheImageView))
+        
+        let imageView = _imageViewArr[1]
+        imageView.isUserInteractionEnabled = true
+        imageView.addGestureRecognizer(tap)
+        
+    }
+    
+    @objc func tapTheImageView() {
+        self.cycleDelegate?.cycleScrollView(view: self, tap: _currentIndex)
+        if self.cycleTapBlock != nil {
+            self.cycleTapBlock!(_currentIndex)
+        }
     }
     
     deinit {

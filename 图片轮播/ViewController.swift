@@ -36,11 +36,22 @@ class ViewController: UIViewController {
         scroll.imageArr = imageArr
         self.view.addSubview(scroll)
         scroll.start(3)
+        
+        scroll.cycleDelegate = self
+        scroll.cycleTapBlock = {
+            print("block: index-\($0)")
+        }
     }
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+    }
+}
+
+extension ViewController:CycleScrollViewDelegate{
+    func cycleScrollView(view: CycleScrollView, tap index: Int) {
+        print("delegate: index-\(index)")
     }
 }
 
